@@ -37,5 +37,5 @@ if [ $TERM = eterm-color ]; then
     eterm-reset
 fi
 
-. ~/.profile_functions
+. ~/.user_functions
 
