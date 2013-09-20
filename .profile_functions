@@ -1,0 +1,73 @@
+function parse_git_branch
+{
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+function git_status_all
+{
+    for d in $( ls -d */ ); do
+    	pushd $d 2>/dev/null 1>/dev/null
+	echo "==> $d $(parse_git_branch)"
+	git status
+	popd 2>/dev/null 1>/dev/null
+	echo
+    done
+}
+
+function git_branch_all
+{
+    for d in $( ls -d */ ); do
+    	pushd $d 2>/dev/null 1>/dev/null
+	echo "==> $d $(parse_git_branch)"
+	git branch -a
+	popd 2>/dev/null 1>/dev/null
+	echo
+    done
+}
+
+function git_checkout
+{
+    if [ $# -lt 1 ]; then
+	echo "Usage: git_checkout <branch name>"
+	return 
+    fi
+    local b="$1"
+    shift
+    for d in $( ls -d */ ); do
+    	pushd $d 2>/dev/null 1>/dev/null
+	echo "Checking out $b on $d"
+	git checkout $b
+	popd 2>/dev/null 1>/dev/null
+	echo
+    done    
+}
+
+function mk_all_gitignore
+{
+    for d in $( ls -d */); do
+       if [ -d "$d" ]; then
+	   mk_gitignore "$d"
+       fi
+    done
+}
+
+function mk_gitignore 
+{
+    if [ $# -lt 1 ]; then
+	echo "Usage: mk_gitignore <directory>"
+	return
+    fi
+    local dir="$1"
+    pushd $dir 2>/dev/null 1>/dev/null
+    if [ -f ".gitignore" ]; then
+	echo ".gitignore already exists in $(dir)"
+    else
+	if [ -f ../rebar_utils/.gitignore ]; then
+	    sed "s/__DIRNAME__/$dir/" ../rebar_utils/.gitignore > .gitignore
+	    echo ".gitignore copied to $dir"
+	else 
+	    echo "Unable to locate prototype .gitignore file"
+	fi
+    fi
+    popd 2>/dev/null 1>/dev/null
+}

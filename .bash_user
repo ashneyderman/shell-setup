@@ -1,0 +1,41 @@
+PS1="\t \[\e[33m\]\W\[\e[33m\]\$(parse_git_branch)\[\e[00m\] > "
+export PS1
+
+ELIXIR_HOME=~/erlang/elixir
+export ELIXIR_HOME
+
+JAVA_HOME=/usr/lib/jvm/latest
+export JAVA_HOME
+
+unset PATH
+PATH="/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/bin"
+PATH="$PATH:~/bin"
+PATH="$PATH:$JAVA_HOME/bin"
+PATH="$PATH:$ELIXIR_HOME/bin"
+export PATH
+
+# Activate erlang version
+. /usr/local/erlang/R16B01/activate
+
+if [ $TERM = eterm-color ]; then
+    function eterm-set-cwd {
+        $@
+        echo -e "\033AnSiTc" $(pwd)
+    }
+
+    # set hostname, user, and cwd
+    function eterm-reset {
+        #echo -e "\033AnSiTu" $(whoami)
+        echo -e "\033AnSiTc" $(pwd)
+    }
+
+    for temp in cd pushd popd; do
+        alias $temp="eterm-set-cwd $temp"
+    done
+
+    # set hostname, user, and cwd now
+    eterm-reset
+fi
+
+. ~/.profile_functions
+
